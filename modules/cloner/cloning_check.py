@@ -4,10 +4,6 @@ import pandas as pd
 
 class RepoInspector:
     def __init__(self, csv_input_path, output_path, log_dir="./log"):
-        """
-        :param csv_input_path: Path al CSV contenente i progetti
-        :param output_path: Path alla cartella che contiene i repo clonati
-        """
         self.csv_input_path = csv_input_path
         self.output_path = output_path
         self.not_cloned_repos = os.path.join(log_dir, 'not_cloned_repos.csv')
