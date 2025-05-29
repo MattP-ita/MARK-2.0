@@ -25,6 +25,7 @@ def analyze_producers(input_path, output_path, analyzer_path):
     print(f"Analyzing producers with dictionary: {producer_dict_path}")
     print(f"Results will be saved in: {output_folder}")
     analyzer.analyze_projects_set(input_folder, producer_dict_path)
+    return result_name
 
 def analyze_consumers(input_path, output_path, analyzer_path, rules_3 = True, rules_4 = True):
     output_folder = os.path.join(output_path, "consumer")
@@ -54,4 +55,4 @@ def analyze_consumers(input_path, output_path, analyzer_path, rules_3 = True, ru
     print(f"Rules_3 is set to: {rules_3}")
     print(f"Rules_4 is set to: {rules_4}")
     analyzer.analyze_projects_set(input_folder, consumer_dict_path, producer_dict_path, rules_3, rules_4)
-
+    return result_name
