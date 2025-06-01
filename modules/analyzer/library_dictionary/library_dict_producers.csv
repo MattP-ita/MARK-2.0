@@ -20,8 +20,6 @@ autosklearn,.fit_pipeline(,Producer,https://automl.github.io/auto-sklearn/master
 autosklearn,.refit(,Producer,https://automl.github.io/auto-sklearn/master/api.html#classification
 botorch,.fit(,Producer,https://botorch.org/api/fit.html
 botorch,.train(,Producer,https://botorch.org/api/_modules/botorch/models/multitask.html#KroneckerMultiTaskGP.train
-botorch,.fit(,Producer,https://botorch.org/api/fit.html
-botorch,.train(,Producer,https://botorch.org/api/_modules/botorch/models/multitask.html#KroneckerMultiTaskGP.train
 caffe,.solve(,Producer,https://github.com/BVLC/caffe/blob/master/docs/tutorial/interfaces.md
 caffe,.step(,Producer,https://github.com/BVLC/caffe/blob/master/docs/tutorial/interfaces.md
 caffe2,.train(,Producer,https://caffe2.ai/doxygen-python/html/namespacetrain.html

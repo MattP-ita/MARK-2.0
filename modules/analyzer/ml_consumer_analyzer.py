@@ -45,10 +45,7 @@ class MLConsumerAnalyzer(MLAnalyzer):
         consumer_library_dict_list = consumer_related_dict['library'].tolist()
 
         flag = False
-        # First, check if the
-
-        # file uses ML libraries
-
+        # First, check if the file uses ML libraries
         if len(consumer_library_dict_list) != 0:
             try:
                 with open(file, "r", encoding="utf-8") as f:
@@ -150,7 +147,7 @@ class MLConsumerAnalyzer(MLAnalyzer):
     def analyze_projects_set(self, input_folder, consumer_library, producer_library, rules_3, rules_4):
         results_file = os.path.join(self.output_folder, 'results.csv')
         df = pd.read_csv(results_file)
-
+        print(f'TEST {consumer_library} - {producer_library}')
         for project in os.listdir(input_folder):
             if not os.path.isdir(os.path.join(input_folder, project)):
                 continue
