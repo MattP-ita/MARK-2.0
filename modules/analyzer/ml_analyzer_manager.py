@@ -1,9 +1,10 @@
 import os
 from typing import Type, List
 
-from modules.analyzer.library_dict_type import LibraryDictType
+from modules.library_manager.library_dict_type import LibraryDictType
 from modules.analyzer.ml_analyzer import MLAnalyzer
 from modules.analyzer.ml_roles import AnalyzerRole
+from modules.scanner.project_scanner import ProjectScanner
 
 
 class MLAnalyzerManager:
@@ -14,18 +15,21 @@ class MLAnalyzerManager:
         analyzer_class: Type['MLAnalyzer'],
         role: AnalyzerRole,
         dict_types: List[LibraryDictType],
+        scanner: ProjectScanner
     ):
         self.analyzer_class = analyzer_class
         self.role = role
         self.dict_types = dict_types
+        self.scanner = scanner
 
 
     @classmethod
-    def register_specialization(cls, role_name: AnalyzerRole, analyzer_class: Type['MLAnalyzer'],
-                                dict_types: List[LibraryDictType]):
+    def register_configuration(cls, role_name: AnalyzerRole, analyzer_class: Type['MLAnalyzer'],
+                                dict_types: List[LibraryDictType],  scanner: ProjectScanner):
         cls._registry[role_name] = {
             "class": analyzer_class,
-            "dicts": dict_types
+            "dicts": dict_types,
+            "scanner": scanner
         }
 
 
@@ -34,13 +38,14 @@ class MLAnalyzerManager:
         if role_name not in cls._registry:
             raise ValueError(f"Specialization '{role_name}' is not registered.")
         entry = cls._registry[role_name]
-        return cls(analyzer_class=entry["class"], role=role_name, dict_types=entry["dicts"])
+        return cls(analyzer_class=entry["class"], role=role_name, dict_types=entry["dicts"], scanner=entry["scanner"])
 
 
-    def analyze(self, input_path, output_path, analyzer_path, **kwargs):
+    def analyze(self, input_path, output_path, io_path, **kwargs):
         role_str = str(self.role.value)
         role_folder = os.path.join(output_path,role_str)
         os.makedirs(role_folder, exist_ok=True)
+
         count = len(os.listdir(role_folder))
         result_name = f"{role_str}_{count + 1}"
         output_folder = os.path.join(role_folder, result_name)
@@ -48,7 +53,7 @@ class MLAnalyzerManager:
 
         dict_paths = {}
         for dict_type in self.dict_types:
-            full_path = os.path.join(analyzer_path, "library_dictionary", dict_type.value)
+            full_path = os.path.join(io_path, "library_dictionary", dict_type.value)
             if not os.path.exists(full_path):
                 raise FileNotFoundError(f"Dictionary '{dict_type.name}' not found at: {full_path}")
             dict_paths[dict_type.name] = full_path
@@ -56,7 +61,7 @@ class MLAnalyzerManager:
         if not os.path.exists(input_path):
             raise FileNotFoundError(f"Input folder not found: {input_path}")
 
-        analyzer = self.analyzer_class(output_folder=output_folder)
+        analyzer = self.analyzer_class(output_folder=output_folder, role= self.role, scanner= self.scanner)
 
         print(f"Running analysis for role: {role_str}")
         print(f"Input folder: {input_path}")

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import git
 import pandas as pd
 from git import Repo
@@ -6,7 +8,7 @@ from threading import Lock
 import os
 
 class RepoCloner:
-    def __init__(self, input_path, output_path, n_repos=5, log_dir="./log"):
+    def __init__(self, input_path, output_path, n_repos=5, log_dir=Path("./modules/cloner/log")):
         self.input_path = input_path
         self.output_path = output_path
         self.n_repos = n_repos

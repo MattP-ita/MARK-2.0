@@ -11,14 +11,19 @@ class Merger:
         self.oracle_path = oracle_path
 
     def calc_performance_metrics(self, df):
+        if df is None or df.empty:
+            raise ValueError("[ERROR] Il DataFrame è vuoto o None.")
+
         tp = self.calc_true_positives(df, self.column_name)
         fp = self.calc_false_positives(df, self.column_name)
         tn = self.calc_true_negatives(df, self.column_name)
         fn = self.calc_false_negatives(df, self.column_name)
-        precision = tp / (tp + fp)
-        recall = tp / (tp + fn)
-        f1 = 2 * (precision * recall) / (precision + recall)
-        accuracy = (tp + tn) / (tp + tn + fp + fn)
+
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        f1 = (2 * precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+        accuracy = (tp + tn) / (tp + tn + fp + fn) if (tp + tn + fp + fn) > 0 else 0.0
+
         return precision, recall, f1, accuracy
 
     def join(self, df_oracle, df_produced):

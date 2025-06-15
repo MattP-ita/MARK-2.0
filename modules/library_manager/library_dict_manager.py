@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-from modules.analyzer.library_dict_type import LibraryDictType
+from modules.library_manager.library_dict_type import LibraryDictType
 
 
 class LibraryDictManager:

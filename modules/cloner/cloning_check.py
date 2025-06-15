@@ -1,9 +1,11 @@
 import os
+from pathlib import Path
+
 import pandas as pd
 
 
 class RepoInspector:
-    def __init__(self, csv_input_path, output_path, log_dir="./log"):
+    def __init__(self, csv_input_path, output_path, log_dir=Path("./modules/cloner/log")):
         self.csv_input_path = csv_input_path
         self.output_path = output_path
         self.not_cloned_repos = os.path.join(log_dir, 'not_cloned_repos.csv')
