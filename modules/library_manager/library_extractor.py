@@ -1,6 +1,5 @@
-import os
-import pandas as pd
-
+from modules.utils.logger import get_logger
+logger = get_logger(__name__)
 
 class LibraryExtractor:
 
@@ -15,10 +14,10 @@ class LibraryExtractor:
                 with open(file_path, "r", encoding="ISO-8859-1") as f:
                     lines = f.readlines()
             except UnicodeDecodeError:
-                print(f"Error reading file {file_path}")
+                logger.error(f"Error reading file {file_path}")
                 return libraries
         except FileNotFoundError:
-            print(f"Error finding file {file_path}")
+            logger.error(f"Error finding file {file_path}")
             return libraries
 
             # Your analysis logic here

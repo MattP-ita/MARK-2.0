@@ -27,9 +27,9 @@ class DefaultKeywordMatcher(KeywordExtractionStrategy):
                                 'line_number': line_number
                             })
         except UnicodeDecodeError:
-            logger.warning(f"Error reading file {file}")
+            logger.error(f"Error reading file {file}")
         except FileNotFoundError:
-            logger.warning(f"Error finding file {file}")
+            logger.error(f"Error finding file {file}")
 
         return matches
 

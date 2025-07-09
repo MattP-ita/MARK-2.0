@@ -1,5 +1,5 @@
+from modules.analyzer.analyzer_factory import AnalyzerFactory
 from modules.analyzer.builder.analyzer_builder import AnalyzerBuilder
-from modules.analyzer.builder.register_builder import register_builder
 from modules.analyzer.ml_consumer_analyzer import MLConsumerAnalyzer
 from modules.analyzer.ml_roles import AnalyzerRole
 from modules.keyword_extractor.keyword_extractor_default import DefaultKeywordMatcher
@@ -8,8 +8,7 @@ from modules.scanner.file_filter.exclude_test_files import ExcludeTestFilesFilte
 from modules.scanner.file_filter.extension_filter import ExtensionFilter
 from modules.scanner.project_scanner import ProjectScanner
 
-
-@register_builder(AnalyzerRole.CONSUMER)
+@AnalyzerFactory.register(AnalyzerRole.CONSUMER)
 class ConsumerAnalyzerBuilder(AnalyzerBuilder):
     def __init__(self):
         super().__init__()

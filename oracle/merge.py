@@ -1,9 +1,8 @@
-# create a python function that reads two cvs and with the same project name and join them in a new csv
 import os.path
-
 import pandas as pd
-from pandas.io.sas.sas_constants import column_name_length_length
 
+from modules.utils.logger import get_logger
+logger = get_logger(__name__)
 
 class Merger:
     def __init__(self, column_name, oracle_path):
@@ -50,9 +49,9 @@ class Merger:
         df_debug = self.get_false_negatives(df_joint, self.column_name)
         df_debug.to_csv(os.path.join(self.oracle_path, f'verifying/{self.column_name}_false_negatives.csv'),
                         index=False)
-        print(f"Analysis done for {self.column_name}. Results saved in {self.column_name}_verification.csv")
-        print("Results:")
-        print(f"Precision: {precision}, Recall: {recall}, F1: {f1}, Accuracy: {accuracy}")
+        logger.info(f"Analysis done for {self.column_name}. Results saved in {self.column_name}_verification.csv")
+        logger.info("Results:")
+        logger.info(f"Precision: {precision}, Recall: {recall}, F1: {f1}, Accuracy: {accuracy}")
 
     @staticmethod
     def get_false_positives(df, column_name):

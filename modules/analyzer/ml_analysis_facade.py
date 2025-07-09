@@ -4,6 +4,8 @@ from modules.analyzer.analyzer_decorator import log_and_time
 from modules.analyzer.analyzer_factory import AnalyzerFactory
 from modules.analyzer.ml_roles import AnalyzerRole
 
+from modules.utils.logger import get_logger
+logger = get_logger(__name__)
 
 class MLAnalysisFacade:
     def __init__(self, input_path, io_path, role: AnalyzerRole):
@@ -34,7 +36,7 @@ class MLAnalysisFacade:
 
     @log_and_time("MLAnalysis")
     def run_analysis(self, **kwargs):
-        builder = AnalyzerFactory.from_role(self.role)
+        builder = AnalyzerFactory.create_builder(self.role)
 
         result_name, output_path, dict_paths = self._resolve_paths(builder.required_dict_types)
 
@@ -46,11 +48,11 @@ class MLAnalysisFacade:
 
         analyzer.analyze_projects_set(self.input_path, *dict_paths.values(), **kwargs)
 
-        print(f"Running analysis for role: {self.role_str}")
-        print(f"Input folder: {self.input_path}")
-        print(f"Output folder: {output_path}")
-        print(f"Dictionaries used: {dict_paths}")
+        logger.info(f"Running analysis for role: {self.role_str}")
+        logger.info(f"Input folder: {self.input_path}")
+        logger.info(f"Output folder: {output_path}")
+        logger.info(f"Dictionaries used: {dict_paths}")
         if kwargs:
-            print(f"Extra analyzer arguments: {kwargs}")
-        print(f"[INFO] Analysis complete. Results written to: {output_path}")
+            logger.info(f"Extra analyzer arguments: {kwargs}")
+        logger.info(f"Analysis complete. Results written to: {output_path}")
         return result_name

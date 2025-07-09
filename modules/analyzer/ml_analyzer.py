@@ -1,19 +1,16 @@
 import os
 import time
-from typing import List
+import pandas as pd
 
 from modules.keyword_extractor.keyword_extractor_base import KeywordExtractionStrategy
 from modules.keyword_extractor.keyword_extractor_default import DefaultKeywordMatcher
-from modules.library_manager.library_dict_type import LibraryDictType
-from modules.library_manager.library_extractor import LibraryExtractor
 from abc import ABC, abstractmethod
 
-import pandas as pd
-
 from modules.analyzer.ml_roles import AnalyzerRole
-from modules.library_manager.library_filter import LibraryFilter
 from modules.scanner.project_scanner import ProjectScanner
 
+from modules.utils.logger import get_logger
+logger = get_logger(__name__)
 
 class MLAnalyzer(ABC):
 
@@ -24,7 +21,6 @@ class MLAnalyzer(ABC):
         self.scanner = scanner
         self.keyword_strategy = keyword_strategy or DefaultKeywordMatcher()
         self.init_analysis_folder()
-
 
     def init_analysis_folder(self):
         consumer_analysis_path = os.path.join(self.output_folder, "analysis")
@@ -46,11 +42,10 @@ class MLAnalyzer(ABC):
         if file:
             libraries, keywords, list_load_keywords = self.check_methods(file, *args, **kwargs)
             if len(keywords) > 0:
-                print(f"Found {file} with ML libraries{libraries} and training instruction {keywords} in {repo}")
+                logger.info(f"Found {file} with ML libraries{libraries} and training instruction {keywords} in {repo}")
                 return libraries, keywords, list_load_keywords
             return libraries, keywords, list_load_keywords
         return libraries, keywords, list_load_keywords
-
 
     def analyze_project(self, repo_contents, project, directory, *args, **kwargs):
         df = pd.DataFrame(columns=self.dataframe_columns)
@@ -88,7 +83,7 @@ class MLAnalyzer(ABC):
                 continue
 
             for dir_path in os.listdir(os.path.join(input_folder, project)):
-                print("Project:", project)
+                logger.info("Project:", project)
                 if os.path.isdir(os.path.join(input_folder, project, dir_path)):
                     new_df = self.analyze_project(
                         os.path.join(input_folder, project, dir_path),

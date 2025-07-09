@@ -40,7 +40,7 @@ class ProjectScanner:
                 if filename.endswith(".ipynb"):
                     try:
                         file_path = self.notebook_converter.convert_notebook_to_code(file_path)
-                        print(f"Converted: {filename} -> {file_path}")
+                        logger.info(f"Converted: {filename} -> {file_path}")
                         logger.info("Notebook converted successfully: %s", file_path)
                     except Exception as e:
                         logger.error("Failed to convert notebook %s: %s", filename, str(e))

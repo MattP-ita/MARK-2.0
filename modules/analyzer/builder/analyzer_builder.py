@@ -1,3 +1,4 @@
+from abc import ABCMeta
 from typing import List
 
 from modules.analyzer.ml_analyzer import MLAnalyzer
@@ -6,7 +7,7 @@ from modules.library_manager.library_dict_type import LibraryDictType
 from modules.scanner.project_scanner import ProjectScanner
 
 
-class AnalyzerBuilder:
+class AnalyzerBuilder(metaclass=ABCMeta):
     def __init__(self):
         self._output_folder = None
         self._role = None

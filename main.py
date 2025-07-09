@@ -1,16 +1,14 @@
 from pathlib import Path
 
-from modules.analyzer.analyzer_factory import AnalyzerFactory
-from modules.analyzer.builder.consumer_analyzer_builder import ConsumerAnalyzerBuilder
-from modules.analyzer.builder.producer_analyzer_builder import ProducerAnalyzerBuilder
+from modules.analyzer.analyzer_factory import AnalyzerFactory # <- required import
+from modules.analyzer.builder.consumer_analyzer_builder import ConsumerAnalyzerBuilder # <- required import
+from modules.analyzer.builder.producer_analyzer_builder import ProducerAnalyzerBuilder # <- required import
 from modules.analyzer.ml_analysis_facade import MLAnalysisFacade
 from modules.library_manager.library_dict_manager import LibraryDictManager
 from modules.library_manager.library_dict_type import LibraryDictType
-from modules.analyzer.ml_analyzer_manager import MLAnalyzerManager
 from modules.analyzer.ml_roles import AnalyzerRole
 from modules.cloner.cloner import RepoCloner
 from modules.cloner.cloning_check import RepoInspector
-from oracle.matching.results_analysis import ResultAnalysis
 from oracle.merge import Merger
 from modules.utils.logger import get_logger
 logger = get_logger(__name__)

@@ -1,5 +1,8 @@
 import os
 
+from modules.utils.logger import get_logger
+logger = get_logger(__name__)
+
 class NotebookConverter:
 
     @staticmethod
@@ -26,8 +29,8 @@ class NotebookConverter:
                     try:
                         converted_file = NotebookConverter.convert_notebook_to_code(full_path)
                         converted_files.append(converted_file)
-                        print(f"Converted: {full_path} -> {converted_file}")
+                        logger.info(f"Converted: {full_path} -> {converted_file}")
                     except Exception as e:
-                        print(f"Error converting {full_path}: {e}")
+                        logger.error(f"Error converting {full_path}: {e}")
 
         return converted_files

@@ -1,5 +1,6 @@
 from modules.library_manager.library_filter import LibraryFilter
 from modules.analyzer.ml_analyzer import MLAnalyzer
+
 from modules.utils.logger import get_logger
 logger = get_logger(__name__)
 
@@ -21,9 +22,9 @@ class MLConsumerAnalyzer(MLAnalyzer):
                     if keyword in file_content:
                         return True
         except UnicodeDecodeError:
-            logger.warning(f"Error reading file {file}")
+            logger.error(f"Error reading file {file}")
         except FileNotFoundError:
-            logger.warning(f"Error finding file {file}")
+            logger.error(f"Error finding file {file}")
 
         return False
 

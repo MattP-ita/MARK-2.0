@@ -1,8 +1,9 @@
 import os
 from pathlib import Path
-
 import pandas as pd
 
+from modules.utils.logger import get_logger
+logger = get_logger(__name__)
 
 class RepoInspector:
     def __init__(self, csv_input_path, output_path, log_dir=Path("./modules/cloner/log")):
@@ -55,13 +56,13 @@ class RepoInspector:
         not_cloned = self.get_not_cloned_list(df)
         cloned = self.get_cloned_list(df)
 
-        print(f'cloned: {len(cloned)} repos')
-        print(f'not cloned: {len(not_cloned)} repos')
+        logger.info(f'cloned: {len(cloned)} repos')
+        logger.info(f'not cloned: {len(not_cloned)} repos')
 
         pd.DataFrame(not_cloned).to_csv(self.not_cloned_repos, index=False)
 
         effective_count = self.count_effective_repos()
-        print(f'effective repos: {effective_count}')
+        logger.info(f'effective repos: {effective_count}')
 
         effective_repos = self.get_effective_repos()
         effective_repos.to_csv(self.effective_repos, index=False)

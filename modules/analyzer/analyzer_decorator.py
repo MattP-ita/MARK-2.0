@@ -2,21 +2,27 @@ import time
 import functools
 import traceback
 
+from modules.utils.logger import get_logger
+logger = get_logger(__name__)
+
 def log_and_time(label=None):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             func_name = label or func.__name__
-            print(f"[DEBUG] Start: {func_name}")
+            logger.info(f"Start: {func_name}")
             start = time.time()
             try:
                 result = func(*args, **kwargs)
             except Exception as e:
-                print(f"[ERROR] Exception in {func_name}")
+                logger.error(f"Exception in {func_name}")
                 traceback.print_exc()
                 raise
             duration = time.time() - start
-            print(f"[INFO] {func_name} completed in {duration:.2f}s")
+            logger.info(f"{func_name} completed in {duration:.2f}s")
             return result
         return wrapper
     return decorator
+
+
+
