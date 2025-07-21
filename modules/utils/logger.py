@@ -1,10 +1,23 @@
+"""Logging utility for the MARK project."""
+
 import logging
 import os
 import sys
 from datetime import datetime
 
+
 def get_logger(name: str = "MARK", log_dir: str = "logs") -> logging.Logger:
-    is_debug = hasattr(sys, 'gettrace') and sys.gettrace() is not None
+    """
+    Create and return a configured logger instance.
+
+    Args:
+        name (str): Name of the logger.
+        log_dir (str): Directory where log files are saved.
+
+    Returns:
+        logging.Logger: Configured logger instance.
+    """
+    is_debug = hasattr(sys, "gettrace") and sys.gettrace() is not None
     logging.raiseExceptions = is_debug
 
     os.makedirs(log_dir, exist_ok=True)
@@ -13,21 +26,21 @@ def get_logger(name: str = "MARK", log_dir: str = "logs") -> logging.Logger:
 
     logger = logging.getLogger(name)
 
-    # Evita di aggiungere handler multipli
     if logger.hasHandlers():
-        return logger
+        return logger  # Prevent duplicate handlers if already configured
 
     logger.setLevel(logging.INFO)
 
-    # Formatter
-    formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] %(message)s", "%H:%M:%S")
+    formatter = logging.Formatter(
+        "[%(asctime)s] [%(levelname)s] %(message)s", "%H:%M:%S"
+    )
 
-    # Console
+    # Console handler
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    # File
+    # File handler
     file_handler = logging.FileHandler(log_file, encoding="utf-8")
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)

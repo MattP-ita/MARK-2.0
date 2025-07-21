@@ -1,3 +1,5 @@
+"""Module for scanning project directories and collecting valid source files."""
+
 import os
 from typing import List, Optional
 
@@ -9,18 +11,35 @@ logger = get_logger(__name__)
 
 
 class ProjectScanner:
+    """Scans project folders to collect source files that match given filter criteria."""
+
     def __init__(
         self,
         filters: Optional[List[FileFilter]] = None,
         notebook_converter: Optional[NotebookConverter] = None
     ):
+        """
+        Initialize the scanner with optional file filters and a notebook converter.
+        """
         self.filters = filters or []
         self.notebook_converter = notebook_converter or NotebookConverter()
 
     def is_valid_file(self, filename: str) -> bool:
+        """
+        Check whether the given file is accepted by all configured filters.
+        """
         return all(file_filter.accept(filename) for file_filter in self.filters)
 
     def scan(self, repo_path: str) -> List[str]:
+        """
+        Scan a repository folder, apply filters and convert notebooks if needed.
+
+        Args:
+            repo_path (str): Path to the repository directory.
+
+        Returns:
+            List[str]: List of valid source file paths.
+        """
         if not os.path.isdir(repo_path):
             logger.error("The specified directory does not exist: %s", repo_path)
             raise FileNotFoundError(f"The specified directory does not exist: {repo_path}")
@@ -29,7 +48,7 @@ class ProjectScanner:
 
         collected_files = []
 
-        for root, dirs, files in os.walk(repo_path):
+        for root, _, files in os.walk(repo_path):
             for filename in files:
                 if not self.is_valid_file(filename):
                     logger.debug("File excluded by filters: %s", filename)
@@ -40,7 +59,6 @@ class ProjectScanner:
                 if filename.endswith(".ipynb"):
                     try:
                         file_path = self.notebook_converter.convert_notebook_to_code(file_path)
-                        logger.info(f"Converted: {filename} -> {file_path}")
                         logger.info("Notebook converted successfully: %s", file_path)
                     except Exception as e:
                         logger.error("Failed to convert notebook %s: %s", filename, str(e))

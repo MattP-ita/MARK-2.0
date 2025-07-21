@@ -1,15 +1,37 @@
-import os.path
+"""Module to merge oracle data with produced results and evaluate performance metrics."""
+
+import os
 import pandas as pd
 
 from modules.utils.logger import get_logger
+
 logger = get_logger(__name__)
 
+
 class Merger:
+    """Class to compare oracle annotations with produced results and compute evaluation metrics."""
+
     def __init__(self, column_name, oracle_path):
+        """
+        Initialize Merger with role and path.
+
+        Args:
+            column_name (str): Role name (e.g., 'producer', 'consumer').
+            oracle_path (str): Path to the oracle directory.
+        """
         self.column_name = column_name
         self.oracle_path = oracle_path
 
     def calc_performance_metrics(self, df):
+        """
+        Calculate precision, recall, F1 score, and accuracy.
+
+        Args:
+            df (pd.DataFrame): DataFrame with oracle and predicted labels.
+
+        Returns:
+            tuple: precision, recall, f1, accuracy
+        """
         if df is None or df.empty:
             raise ValueError("[ERROR] Il DataFrame è vuoto o None.")
 
@@ -21,58 +43,126 @@ class Merger:
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
         f1 = (2 * precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
-        accuracy = (tp + tn) / (tp + tn + fp + fn) if (tp + tn + fp + fn) > 0 else 0.0
+        accuracy = (
+            (tp + tn) / (tp + tn + fp + fn) if (tp + tn + fp + fn) > 0 else 0.0
+        )
 
         return precision, recall, f1, accuracy
 
     def join(self, df_oracle, df_produced):
+        """
+        Merge oracle and result CSVs and align columns.
+
+        Args:
+            df_oracle (str): Path to oracle CSV.
+            df_produced (str): Path to produced result CSV.
+
+        Returns:
+            pd.DataFrame: Merged DataFrame
+        """
         df_oracle = pd.read_csv(df_oracle)
         df_produced = pd.read_csv(df_produced)
-        df_produced.rename(columns={f'Is ML {self.column_name}': f'Is_ML_{self.column_name}'}, inplace=True)
+
+        df_produced.rename(
+            columns={f'Is ML {self.column_name}': f'Is_ML_{self.column_name}'},
+            inplace=True
+        )
         df_produced.drop_duplicates(subset=['ProjectName'], keep='first', inplace=True)
         df_produced = df_produced[['ProjectName', f'Is_ML_{self.column_name}']]
-        df_joint = pd.merge(df_oracle, df_produced, on='ProjectName', how='left', validate='one_to_one')
 
-        # replace nan values with 'No'
-        df_joint[f'Is_ML_{self.column_name}'] = df_joint[f'Is_ML_{self.column_name}'].fillna('No')
-        result_path = os.path.join(self.oracle_path, f'verifying/{self.column_name}_verification.csv')
+        df_joint = pd.merge(
+            df_oracle, df_produced, on='ProjectName', how='left', validate='one_to_one'
+        )
+
+        df_joint[f'Is_ML_{self.column_name}'] = df_joint[
+            f'Is_ML_{self.column_name}'
+        ].fillna('No')
+
+        result_path = os.path.join(
+            self.oracle_path, f'verifying/{self.column_name}_verification.csv'
+        )
         df_joint.to_csv(result_path, index=False)
+
         return df_joint
 
     def reporting(self, base_output_path, dir_result, file_name):
+        """
+        Generate report by computing metrics and saving false cases.
+
+        Args:
+            base_output_path (str): Base path for results.
+            dir_result (str): Subfolder with role result.
+            file_name (str): Name of the produced CSV.
+        """
         result_path = os.path.join(base_output_path, self.column_name, dir_result, file_name)
-        df_joint = self.join(os.path.join(self.oracle_path, f"oracle_{self.column_name}.csv"), result_path)
+        df_joint = self.join(
+            os.path.join(self.oracle_path, f"oracle_{self.column_name}.csv"),
+            result_path
+        )
+
         precision, recall, f1, accuracy = self.calc_performance_metrics(df_joint)
-        df_debug = self.get_false_positives(df_joint, self.column_name)
-        df_debug.to_csv(os.path.join(self.oracle_path, f'verifying/{self.column_name}_false_positives.csv'),
-                        index=False)
-        df_debug = self.get_false_negatives(df_joint, self.column_name)
-        df_debug.to_csv(os.path.join(self.oracle_path, f'verifying/{self.column_name}_false_negatives.csv'),
-                        index=False)
-        logger.info(f"Analysis done for {self.column_name}. Results saved in {self.column_name}_verification.csv")
+
+        false_pos = self.get_false_positives(df_joint, self.column_name)
+        false_pos_path = os.path.join(
+            self.oracle_path, f'verifying/{self.column_name}_false_positives.csv'
+        )
+        false_pos.to_csv(false_pos_path, index=False)
+
+        false_neg = self.get_false_negatives(df_joint, self.column_name)
+        false_neg_path = os.path.join(
+            self.oracle_path, f'verifying/{self.column_name}_false_negatives.csv'
+        )
+        false_neg.to_csv(false_neg_path, index=False)
+
+        logger.info("Analysis done for %s. Results saved in %s", self.column_name, file_name)
         logger.info("Results:")
-        logger.info(f"Precision: {precision}, Recall: {recall}, F1: {f1}, Accuracy: {accuracy}")
+        logger.info("Precision: %s, Recall: %s, F1: %s, Accuracy: %s",
+                    precision, recall, f1, accuracy)
 
     @staticmethod
     def get_false_positives(df, column_name):
-        return df[(df[f'Is_Real_ML_{column_name}'] == 'No') & (df[f'Is_ML_{column_name}'] == 'Yes')]
+        """Return DataFrame with false positives."""
+        return df[
+            (df[f'Is_Real_ML_{column_name}'] == 'No') &
+            (df[f'Is_ML_{column_name}'] == 'Yes')
+        ]
 
     @staticmethod
     def get_false_negatives(df, column_name):
-        return df[(df[f'Is_Real_ML_{column_name}'] == 'Yes') & (df[f'Is_ML_{column_name}'] == 'No')]
+        """Return DataFrame with false negatives."""
+        return df[
+            (df[f'Is_Real_ML_{column_name}'] == 'Yes') &
+            (df[f'Is_ML_{column_name}'] == 'No')
+        ]
 
     @staticmethod
     def calc_true_positives(df, column_name):
-        return df[(df[f'Is_Real_ML_{column_name}'] == 'Yes') & (df[f'Is_ML_{column_name}'] == 'Yes')].shape[0]
+        """Return true positives count."""
+        return df[
+            (df[f'Is_Real_ML_{column_name}'] == 'Yes') &
+            (df[f'Is_ML_{column_name}'] == 'Yes')
+        ].shape[0]
 
     @staticmethod
     def calc_false_positives(df, column_name):
-        return df[(df[f'Is_Real_ML_{column_name}'] == 'No') & (df[f'Is_ML_{column_name}'] == 'Yes')].shape[0]
+        """Return false positives count."""
+        return df[
+            (df[f'Is_Real_ML_{column_name}'] == 'No') &
+            (df[f'Is_ML_{column_name}'] == 'Yes')
+        ].shape[0]
 
     @staticmethod
     def calc_true_negatives(df, column_name):
-        return df[(df[f'Is_Real_ML_{column_name}'] == 'No') & (df[f'Is_ML_{column_name}'] == 'No')].shape[0]
+        """Return true negatives count."""
+        return df[
+            (df[f'Is_Real_ML_{column_name}'] == 'No') &
+            (df[f'Is_ML_{column_name}'] == 'No')
+        ].shape[0]
 
     @staticmethod
     def calc_false_negatives(df, column_name):
-        return df[(df[f'Is_Real_ML_{column_name}'] == 'Yes') & (df[f'Is_ML_{column_name}'] == 'No')].shape[0]
+        """Return false negatives count."""
+        return df[
+            (df[f'Is_Real_ML_{column_name}'] == 'Yes') &
+            (df[f'Is_ML_{column_name}'] == 'No')
+        ].shape[0]

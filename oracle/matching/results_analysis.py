@@ -1,33 +1,57 @@
+"""Module to analyze ML role classification results against an oracle."""
+
 import os
 import pandas as pd
+from modules.analyzer.ml_roles import AnalyzerRole
+
 
 class ResultAnalysis:
-    def __init__(self, column_name, oracle_path, folder_path, dir_result, file_name):
-        self.column_name = column_name
+    """Performs comparison between detected ML roles and oracle values."""
+
+    def __init__(
+        self,
+        role: AnalyzerRole,
+        oracle_path: str,
+        base_folder_path: str,
+        results_subdir: str
+    ):
+        """
+        Initialize ResultAnalysis.
+
+        Args:
+            role (AnalyzerRole): Role to evaluate (PRODUCER or CONSUMER).
+            oracle_path (str): Path to the oracle files.
+            base_folder_path (str): Root path containing result subdirectories.
+            results_subdir (str): Subdirectory within the role folder.
+            file_name (str): Output file name (without full path).
+        """
+        self.role = role
+        self.role_str = str(role.value)
         self.oracle_path = oracle_path
-        self.folder_path = str(os.path.join(folder_path, column_name, dir_result))
-        self.file_name = file_name
+        self.folder_path = os.path.join(base_folder_path, self.role_str, results_subdir)
+        self.file_name = results_subdir
 
     def start_analysis(self):
-        # Load the oracle.csv file
-        oracle_df = pd.read_csv(os.path.join(self.oracle_path, f"oracle_{self.column_name}.csv"))
+        """Compare predictions with oracle and export result to CSV."""
+        oracle_file = os.path.join(self.oracle_path, f"oracle_{self.role_str}.csv")
+        if not os.path.exists(oracle_file):
+            raise FileNotFoundError(f"Oracle file not found: {oracle_file}")
+        if not os.path.isdir(self.folder_path):
+            raise FileNotFoundError(f"Results folder not found: {self.folder_path}")
 
-        # Create a new dataframe with the required columns
-        result_df = oracle_df[["ProjectName", f"Is_Real_ML_{self.column_name}"]].copy()
+        oracle_df = pd.read_csv(oracle_file)
+        result_df = oracle_df[["ProjectName", f"Is_Real_ML_{self.role_str}"]].copy()
+        result_df[f"is ML {self.role_str}"] = "No"
 
-        # Add the "is ML Producer" column
-        result_df[f"is ML {self.column_name}"] = "No"
-
-        # Check each .csv file in the file_name folder
         for filename in os.listdir(self.folder_path):
             if filename.endswith(".csv"):
-                # Read the current CSV file
                 file_path = os.path.join(self.folder_path, filename)
                 df = pd.read_csv(file_path)
+                matching = result_df["ProjectName"].isin(df["ProjectName"])
+                result_df.loc[matching, f"is ML {self.role_str}"] = "Yes"
 
-                # Check for matching ProjectName values
-                matching_projects = result_df["ProjectName"].isin(df["ProjectName"])
-                result_df.loc[matching_projects, f"is ML {self.column_name}"] = "Yes"
+        output_dir = os.path.join(self.oracle_path, "matching")
+        os.makedirs(output_dir, exist_ok=True)
 
-        # Save the resulting dataframe to a new CSV file
-        result_df.to_csv(os.path.join(self.oracle_path, "matching", f"result_{self.file_name}.csv"), index=False)
+        output_file = os.path.join(output_dir, f"result_{self.file_name}.csv")
+        result_df.to_csv(output_file, index=False)

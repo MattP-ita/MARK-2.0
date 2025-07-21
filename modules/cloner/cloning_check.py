@@ -1,3 +1,5 @@
+"""Module for verifying which GitHub repositories were successfully cloned."""
+
 import os
 from pathlib import Path
 import pandas as pd
@@ -5,26 +7,34 @@ import pandas as pd
 from modules.utils.logger import get_logger
 logger = get_logger(__name__)
 
+
 class RepoInspector:
+    """Class to analyze the results of the cloning process of GitHub repositories."""
+
     def __init__(self, csv_input_path, output_path, log_dir=Path("./modules/cloner/log")):
+        """Initialize RepoInspector with paths to input CSV, output folder and log directory."""
         self.csv_input_path = csv_input_path
         self.output_path = output_path
         self.not_cloned_repos = os.path.join(log_dir, 'not_cloned_repos.csv')
         self.effective_repos = os.path.join(log_dir, 'effective_repos.csv')
 
     def check_cloned_repo(self, project_name):
+        """Check if the repository directory exists and is not empty."""
         repo_base_path = os.path.join(self.output_path, project_name.split('/')[0])
         if os.path.exists(repo_base_path):
             return len(os.listdir(str(repo_base_path))) > 0
         return False
 
     def get_not_cloned_list(self, df):
+        """Return list of repositories from the input CSV that were not cloned."""
         return [row for _, row in df.iterrows() if not self.check_cloned_repo(row['ProjectName'])]
 
     def get_cloned_list(self, df):
+        """Return list of repositories from the input CSV that were cloned."""
         return [row for _, row in df.iterrows() if self.check_cloned_repo(row['ProjectName'])]
 
     def count_effective_repos(self):
+        """Count total number of cloned repositories across all directories."""
         count = 0
         for dir_name in os.listdir(self.output_path):
             full_dir = os.path.join(self.output_path, dir_name)
@@ -33,6 +43,7 @@ class RepoInspector:
         return count
 
     def get_effective_repos(self):
+        """Return a DataFrame with all detected cloned repositories and their paths."""
         repos = pd.DataFrame(columns=['ProjectName', 'repo_path'])
         for dir_name in os.listdir(self.output_path):
             dir_path = os.path.join(self.output_path, dir_name)
@@ -48,7 +59,7 @@ class RepoInspector:
         return repos
 
     def run_analysis(self):
-
+        """Run the full inspection: log cloned, not cloned, and effective repos to CSV."""
         if os.path.exists(self.not_cloned_repos):
             os.remove(self.not_cloned_repos)
 
@@ -56,13 +67,13 @@ class RepoInspector:
         not_cloned = self.get_not_cloned_list(df)
         cloned = self.get_cloned_list(df)
 
-        logger.info(f'cloned: {len(cloned)} repos')
-        logger.info(f'not cloned: {len(not_cloned)} repos')
+        logger.info('cloned: %d repos', len(cloned))
+        logger.info('not cloned: %d repos', len(not_cloned))
 
         pd.DataFrame(not_cloned).to_csv(self.not_cloned_repos, index=False)
 
         effective_count = self.count_effective_repos()
-        logger.info(f'effective repos: {effective_count}')
+        logger.info('effective repos: %d', effective_count)
 
         effective_repos = self.get_effective_repos()
         effective_repos.to_csv(self.effective_repos, index=False)

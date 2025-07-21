@@ -1,3 +1,5 @@
+"""Defines the builder for the ML producer analyzer."""
+
 from modules.analyzer.analyzer_factory import AnalyzerFactory
 from modules.analyzer.builder.analyzer_builder import AnalyzerBuilder
 from modules.analyzer.ml_producer_analyzer import MLProducerAnalyzer
@@ -10,6 +12,10 @@ from modules.scanner.project_scanner import ProjectScanner
 
 @AnalyzerFactory.register(AnalyzerRole.PRODUCER)
 class ProducerAnalyzerBuilder(AnalyzerBuilder):
+    """Concrete builder for ML producer analyzers,
+    pre-configured with role, scanner, and strategy.
+    """
+
     def __init__(self):
         super().__init__()
         self.with_role(AnalyzerRole.PRODUCER)
