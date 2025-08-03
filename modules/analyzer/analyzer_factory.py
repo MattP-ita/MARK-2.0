@@ -24,8 +24,6 @@ class AnalyzerFactory:
         Returns:
             Callable[[AnalyzerBuilder], AnalyzerBuilder]: The decorator.
         """
-        logger.info("New builder for role %s", role)
-
         def inner_wrapper(wrapped_class: AnalyzerBuilder) -> AnalyzerBuilder:
             if role in cls._registry:
                 logger.warning(

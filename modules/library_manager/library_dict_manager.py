@@ -9,10 +9,10 @@ from modules.library_manager.library_dict_type import LibraryDictType
 class LibraryDictManager:
     """Handles dictionary operations for ML library keyword classification."""
 
-    def __init__(self, analyzer_path):
+    def __init__(self, io_path):
         """Initialize the dictionary manager with the analyzer base path."""
-        self.analyzer_path = analyzer_path
-        self.dict_dir = os.path.join(analyzer_path, "library_dictionary")
+        self.io_path = io_path
+        self.dict_dir = os.path.join(io_path, "library_dictionary")
 
     def update_dictionary(self, dict_type: LibraryDictType, new_entries_path: str) -> int:
         """

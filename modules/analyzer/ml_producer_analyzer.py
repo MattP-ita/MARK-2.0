@@ -7,7 +7,7 @@ from modules.analyzer.ml_analyzer import MLAnalyzer
 class MLProducerAnalyzer(MLAnalyzer):
     """Analyzer for identifying ML activity related to producer libraries."""
 
-    def check_methods(self, file, producer_library, **kwargs):
+    def check_library(self, file, producer_library, **kwargs):
         """Check ML usage in a file using only the producer library."""
         list_load_keywords = []
         keywords = []

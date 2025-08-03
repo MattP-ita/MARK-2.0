@@ -37,7 +37,6 @@ class NotebookConverter:
                     try:
                         converted_file = NotebookConverter.convert_notebook_to_code(full_path)
                         converted_files.append(converted_file)
-                        logger.info("Converted: %s -> %s", full_path, converted_file)
                     except Exception as e:
                         logger.error("Error converting %s: %s", full_path, e)
 

@@ -1,6 +1,6 @@
 """Defines the abstract builder pattern for ML analyzers."""
 
-from abc import ABCMeta
+from abc import ABC
 from typing import List
 
 from modules.analyzer.ml_roles import AnalyzerRole
@@ -8,7 +8,7 @@ from modules.library_manager.library_dict_type import LibraryDictType
 from modules.scanner.project_scanner import ProjectScanner
 
 
-class AnalyzerBuilder(metaclass=ABCMeta):
+class AnalyzerBuilder(ABC):
     """Builder class for constructing MLAnalyzer instances step-by-step."""
 
     def __init__(self):

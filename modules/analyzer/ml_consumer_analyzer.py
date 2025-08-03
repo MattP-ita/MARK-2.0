@@ -32,8 +32,8 @@ class MLConsumerAnalyzer(MLAnalyzer):
 
         return False
 
-    def check_methods(self, file, consumer_library, producer_library, rules_3, **kwargs):
-        """Override check_methods for MLConsumerAnalyzer """
+    def check_library(self, file, consumer_library, producer_library, rules_3, **kwargs):
+        """Override check_library for MLConsumerAnalyzer """
         list_load_keywords = []
         keywords = []
 
