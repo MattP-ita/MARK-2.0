@@ -1,4 +1,9 @@
-"""Module implementing MLConsumerAnalyzer for analyzing consumer ML usage."""
+"""Analyzer specialization for ML consumers.
+
+This module provides the MLConsumerAnalyzer, a concrete subclass of MLAnalyzer that applies the consumer rules over
+source files. It loads the consumer and producer library dictionaries, filters used libraries in a file,
+and (optionally)enforces the “no training APIs” constraint (Rule 3) by consulting the producer dictionary
+before accepting a match. Keyword extraction is delegated to the configured strategy."""
 
 from modules.library_manager.library_filter import LibraryFilter
 from modules.analyzer.ml_analyzer import MLAnalyzer
@@ -32,8 +37,12 @@ class MLConsumerAnalyzer(MLAnalyzer):
 
         return False
 
-    def check_library(self, file, consumer_library, producer_library, rules_3, **kwargs):
+    def check_library(self, file, **kwargs):
         """Override check_library for MLConsumerAnalyzer """
+        consumer_library = self.library_dicts[0]
+        producer_library = self.library_dicts[1]
+        rules_3 = kwargs.get("rules_3", False)
+
         list_load_keywords = []
         keywords = []
 

@@ -8,7 +8,6 @@ from modules.keyword_extractor.keyword_extractor_default import DefaultKeywordMa
 from modules.library_manager.library_dict_type import LibraryDictType
 from modules.scanner.file_filter.exclude_test_files import ExcludeTestFilesFilter
 from modules.scanner.file_filter.extension_filter import ExtensionFilter
-from modules.scanner.project_scanner import ProjectScanner
 
 
 @AnalyzerFactory.register(AnalyzerRole.CONSUMER)
@@ -20,8 +19,8 @@ class ConsumerAnalyzerBuilder(AnalyzerBuilder):
         self.with_role(AnalyzerRole.CONSUMER)
         self.with_analyzer_class(MLConsumerAnalyzer)
         self.with_library_dicts([LibraryDictType.CONSUMER, LibraryDictType.PRODUCER])
-        self.with_scanner(ProjectScanner(filters=[
-            ExtensionFilter([".py", ".ipynb"]),
+        self.with_filters([
+            ExtensionFilter([".py"]),
             ExcludeTestFilesFilter()
-        ]))
+        ])
         self.with_keyword_strategy(DefaultKeywordMatcher())

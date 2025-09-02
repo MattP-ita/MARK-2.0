@@ -1,4 +1,10 @@
-"""Module for verifying which GitHub repositories were successfully cloned."""
+"""Utility to verify which GitHub repositories were successfully cloned.
+
+This module reads the list of projects from an input CSV, inspects the output
+directory on disk, and produces two reports:
+- not_cloned_repos.csv : projects listed in the CSV but not found on disk
+- effective_repos.csv  : complete list of repositories actually detected on disk
+"""
 
 import os
 from pathlib import Path
@@ -18,12 +24,20 @@ class RepoInspector:
         self.not_cloned_repos = os.path.join(log_dir, 'not_cloned_repos.csv')
         self.effective_repos = os.path.join(log_dir, 'effective_repos.csv')
 
+    # ---------------------------------------------------------------------
+    # Filesystem checks
+    # ---------------------------------------------------------------------
+
     def check_cloned_repo(self, project_name):
         """Check if the repository directory exists and is not empty."""
         repo_base_path = os.path.join(self.output_path, project_name.split('/')[0])
         if os.path.exists(repo_base_path):
             return len(os.listdir(str(repo_base_path))) > 0
         return False
+
+    # ---------------------------------------------------------------------
+    # DataFrame selections
+    # ---------------------------------------------------------------------
 
     def get_not_cloned_list(self, df):
         """Return list of repositories from the input CSV that were not cloned."""
@@ -32,6 +46,10 @@ class RepoInspector:
     def get_cloned_list(self, df):
         """Return list of repositories from the input CSV that were cloned."""
         return [row for _, row in df.iterrows() if self.check_cloned_repo(row['ProjectName'])]
+
+    # ---------------------------------------------------------------------
+    # Aggregated detections
+    # ---------------------------------------------------------------------
 
     def count_effective_repos(self):
         """Count total number of cloned repositories across all directories."""
@@ -57,6 +75,10 @@ class RepoInspector:
                     'repo_path': [repo_path]
                 })], ignore_index=True)
         return repos
+
+    # ---------------------------------------------------------------------
+    # Orchestration
+    # ---------------------------------------------------------------------
 
     def run_analysis(self):
         """Run the full inspection: log cloned, not cloned, and effective repos to CSV."""

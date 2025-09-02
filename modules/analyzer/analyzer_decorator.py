@@ -1,4 +1,9 @@
-"""Decorator to log execution time and handle exceptions with optional labels."""
+"""Logs start/end, execution time, and uncaught exceptions for any wrapped function, with an optional custom label.
+The decorator preserves the original function’s signature and metadata, integrates with the project’s global logger,
+and emits persistent entries suitable for debugging and performance tracing.
+
+Typical usage is on Facade entry points to capture end-to-end timings without changing business logic,
+improving observability while keeping the code unobtrusive."""
 
 import time
 import functools

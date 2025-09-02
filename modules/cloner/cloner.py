@@ -1,4 +1,15 @@
-"""Module responsible for cloning GitHub repositories and tracking clone results."""
+"""Clone a list of GitHub repositories from a CSV and persist the outcome of each attempt.
+
+Given an input file, the component performs shallow clones (depth=1) into a target directory,
+executes operations concurrently via a thread pool, and records successes in cloned_log.csv
+and failures in errors.csv with sanitized messages.
+
+It automatically skips repositories already listed as cloned, ensuring idempotent runs.
+Paths (input/output/logs), the maximum number of repositories to process, and the degree of
+parallelism are configurable at instantiation.
+
+The goal is to provide a reusable, traceable acquisition step that cleanly separates configuration
+from execution and produces reproducible logs debugging."""
 
 import os
 from pathlib import Path

@@ -33,21 +33,18 @@ class MLAnalysisFacade:
             dict_types (List[Enum]): Types of dictionaries required by the analyzer.
 
         Returns:
-            Tuple[str, str, Dict[str, str]]: result_name, output_path, dict_paths
+            Tuple[str, str]: result_name, output_path
         """
         if not os.path.exists(self.input_path):
             raise FileNotFoundError(
                 f"Input folder not found: {self.input_path}"
             )
 
-        dict_paths = {}
         for dict_type in dict_types:
-            full_path = os.path.join(self.io_path, "library_dictionary", dict_type.value)
-            if not os.path.exists(full_path):
+            if not os.path.exists(dict_type.value):
                 raise FileNotFoundError(
                     f"Dictionary '{dict_type.name}' not found at: 'full_path'"
                 )
-            dict_paths[dict_type.name] = full_path
 
         role_folder = os.path.join(self.io_path, "output", self.role_str)
         os.makedirs(role_folder, exist_ok=True)
@@ -56,7 +53,7 @@ class MLAnalysisFacade:
         output_path = os.path.join(role_folder, result_name)
         os.makedirs(output_path, exist_ok=True)
 
-        return result_name, output_path, dict_paths
+        return result_name, output_path
 
     @log_and_time("MLAnalysis")
     def run_analysis(self, **kwargs):
@@ -68,22 +65,16 @@ class MLAnalysisFacade:
         Returns:
             str: The result folder name used for output.
         """
-        builder = AnalyzerFactory.create_builder(self.role)
+        analyzer = AnalyzerFactory.create_builder(self.role).build()
 
-        result_name, output_path, dict_paths = self._resolve_paths(builder.required_dict_types)
+        result_name, output_path = self._resolve_paths(analyzer.library_dicts)
 
-        analyzer = (
-            builder
-            .with_output_folder(output_path)
-            .build()
-        )
-
-        analyzer.analyze_projects_set(self.input_path, *dict_paths.values(), **kwargs)
+        analyzer.analyze_projects_set(self.input_path, output_path, **kwargs)
 
         logger.info("Running analysis for role: %s", self.role_str)
         logger.info("Input folder: %s", self.input_path)
         logger.info("Output folder: %s", output_path)
-        logger.info("Dictionaries used: %s", dict_paths)
+        logger.info("Dictionaries used: %s", analyzer.library_dicts)
         if kwargs:
             logger.info("Extra analyzer arguments: %s", kwargs)
         logger.info("Analysis complete. Results written to: %s", output_path)

@@ -1,0 +1,6 @@
+# Lint & style
+pylint~=3.2
+flake8~=7.0
+
+# Metrics
+radon~=6.0

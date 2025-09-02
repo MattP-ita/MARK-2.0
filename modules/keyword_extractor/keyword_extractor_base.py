@@ -1,4 +1,10 @@
-"""Defines the base interface for keyword extraction strategies."""
+"""Default, regex-based keyword extraction strategy for MARK.
+
+This module implements the concrete KeywordExtractionStrategy used by analyzers
+to spot ML-related API usages inside source files. It reads a file line-by-line,
+builds case-insensitive regular expressions from the KB keywords (handling dots,
+parentheses, and optional whitespace), and records every match together with its
+library, file path, and line number. """
 
 from abc import ABC, abstractmethod
 

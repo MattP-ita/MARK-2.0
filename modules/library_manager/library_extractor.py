@@ -1,4 +1,11 @@
-"""Module for extracting and checking imported libraries from source code files."""
+"""Lightweight utility to parse source files and extract imported libraries.
+
+This module exposes a helper that reads a source file
+and collects module names referenced by import ... and from ... import ...
+statements. It returns a normalized list of imported identifiers without resolving
+dependencies or executing code. Errors (e.g., unreadable files or unsupported
+encodings) are logged via the global logger and handled gracefully, making the
+extractor safe to use across large codebases."""
 
 from modules.utils.logger import get_logger
 
@@ -34,13 +41,3 @@ class LibraryExtractor:
                 else:
                     libraries.append(line.split(" ")[1])
         return libraries
-
-    @staticmethod
-    def check_ml_library_usage(file_path: str, library_dict):
-        """Filter and return ML libraries used in a file from the provided dictionary."""
-        file_libraries = LibraryExtractor.get_libraries_from_file(file_path)
-        for i, lib in enumerate(file_libraries):
-            if "." in lib:
-                file_libraries[i] = lib.split(".")[0]
-        dict_libraries = library_dict[library_dict["library"].isin(file_libraries)]
-        return dict_libraries
